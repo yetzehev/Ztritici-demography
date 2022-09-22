@@ -285,30 +285,13 @@ msmc2 provides the python script: combineCrossCoal.py to  compute  RCCR between 
 #SBATCH --partition=standard #Request a specific partition for the resource allocation.
 
 #This script uses as input two pseudo-diploid files to runs msmc for the 13 chromosomes of Z. tritici
-
 msmctools="/data/biosoftware/msmc-tools/msmc-tools"
 data="./../data"
-out="./../data/msmc_16hap"
+out="./../data/msmc_16hap" 
 
-$msmctools/combineCrossCoal.py $out/aeg-wht.16hapl.allChr.across-pop12.comb1.output.final.txt $out/aeg.16hapl.allChr.within-pop1.comb1.output.final.txt $out/wht.16hapl.allChr.within-pop2.comb1.output.final.txt > $out/combined_wht-aeg_16hap_msmc.comb1.final.txt
-
-$msmctools/combineCrossCoal.py $out/wht-aeg.16hapl.comb2.12seg.allChr.across-pop12.output.final.txt $out/wheat.16hapl.12seg.comb2.allChr.msmc.output.final.txt $out/aeg.16hapl.12seg.comb2.allChr.msmc.output.final.txt > $out/combined_wht-aeg_16hap_msmc.12seg.comb2.final.txt
-
-$msmctools/combineCrossCoal.py $out/wht-aeg.16hapl.comb3.12seg.allChr.across-pop12.output.final.txt $out/wheat.16hapl.12seg.comb3.allChr.msmc.output.final.txt $out/aeg.16hapl.12seg.comb3.allChr.msmc.output.final.txt > $out/combined_wht-aeg_16hap_msmc.12seg.comb3.final.txt
-
-$msmctools/combineCrossCoal.py $out/wht-aeg.16hapl.comb4.12seg.allChr.across-pop12.output.final.txt $out/wheat.16hapl.12seg.comb4.allChr.msmc.output.final.txt $out/aeg.16hapl.12seg.comb4.allChr.msmc.output.final.txt > $out/combined_wht-aeg_16hap_msmc.12seg.comb4.final.txt
-
-$msmctools/combineCrossCoal.py $out/aeg-wht.16hapl.allChr.across-pop12.comb5.output.final.txt $out/aeg.16hapl.allChr.within-pop1.comb5.output.final.txt $out/wht.16hapl.allChr.within-pop2.comb5.output.final.txt > $out/combined_wht-aeg_16hap_msmc.comb5.final.txt 
-
-$msmctools/combineCrossCoal.py $out/aeg-wht.16hapl.allChr.across-pop12.comb6.output.final.txt $out/aeg.16hapl.allChr.within-pop1.comb6.output.final.txt $out/wht.16hapl.allChr.within-pop2.comb6.output.final.txt > $out/combined_wht-aeg_16hap_msmc.comb6.final.txt 
-
-$msmctools/combineCrossCoal.py $out/aeg-wht.16hapl.allChr.across-pop12.comb7.output.final.txt $out/aeg.16hapl.allChr.within-pop1.comb7.output.final.txt $out/wht.16hapl.allChr.within-pop2.comb7.output.final.txt > $out/combined_wht-aeg_16hap_msmc.comb7.final.txt
-
-$msmctools/combineCrossCoal.py $out/aeg-wht.16hapl.allChr.across-pop12.comb8.output.final.txt $out/aeg.16hapl.allChr.within-pop1.comb8.output.final.txt $out/wht.16hapl.allChr.within-pop2.comb8.output.final.txt > $out/combined_wht-aeg_16hap_msmc.comb8.final.txt .
-
-$msmctools/combineCrossCoal.py $out/aeg-wht.16hapl.allChr.across-pop12.comb9.output.final.txt $out/aeg.16hapl.allChr.within-pop1.comb9.output.final.txt $out/wht.16hapl.allChr.within-pop2.comb9.output.final.txt > $out/combined_wht-aeg_16hap_msmc.comb9.final.txt
-
-$msmctools/combineCrossCoal.py $out/aeg-wht.16hapl.allChr.across-pop12.comb10.output.final.txt $out/aeg.16hapl.allChr.within-pop1.comb10.output.final.txt $out/wht.16hapl.allChr.within-pop2.comb10.output.final.txt > $out/combined_wht-aeg_16hap_msmc.comb10.final.txt
+for i in 1 2 3 4 5 6 7 8 9 10; do 
+$msmctools/combineCrossCoal.py $out/aeg-wht.16hapl.allChr.across-pop12.comb$i.output.final.txt $out/aeg.16hapl.allChr.within-pop1.comb$i.output.final.txt $out/wht.16hapl.allChr.within-pop2.comb$i.output.final.txt > $out/combined_wht-aeg_16hap_msmc.comb$i.final.txt;
+done
 ```
 
 ## Step 6. Plot RCCR and Ne
