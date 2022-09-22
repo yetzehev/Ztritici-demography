@@ -15,10 +15,10 @@
 
 #This script generates a executing file to create pseudodiploid genotypes. It is based on the post "How to merge two haploid samples into a pseudo-diploid" available at "https://www.biostars.org/p/341696/"
 
-#Note: First combine the 45 genotyoes in pairs separated by a comma
+#1) Combine the 45 genotypes in pairs separated by a comma
 #cat Ztritici.aeg.txt | while read s; do for d in `cat Ztritici.aeg.txt`; do if [ $s != $d ]; then echo $s,$d; fi; done; done > Ztritici.aeg.diploid.comb
 
-#Then make a list with 1000 random combinations 
+#Then make a list with 100 random combinations 
 #shuf -n 100 Ztritici.aeg.diploid.comb > Ztritici.aeg.diploid.100comb; tr "\n" " " < Ztritici.aeg.diploid.100comb
 
 
