@@ -13,6 +13,6 @@ This repository contains the scripts used to asses demogrphic history of Zymosep
 
 ## Directories content
 
-**Workflow:** This diectory contains a markdown file that describes the workflow to compute Ne and RCCR
+**Workflow:** Contains a markdown file that describes the workflow to compute Ne and RCCR
 
-**Scripts:** This directory contains the script to run the pipeline described in workflow
+**Scripts:** TContains the scripts to run the pipeline described in workflow
