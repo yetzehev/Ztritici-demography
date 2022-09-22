@@ -1,6 +1,6 @@
 # Demography of two divergent populations of *Triticum*- and *Aegilops*-infecting  *Z. tritici* 
 
-# Section 1: Pipeline
+# Pipeline description
 
 ##  Aim
 To assess the  demographic history of *Aegilops*- and *Triticum*-infecting *Z. tritici* populations
