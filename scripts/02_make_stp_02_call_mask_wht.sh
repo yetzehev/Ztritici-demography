@@ -1,0 +1,20 @@
+#!/bin/bash
+ 
+#SBATCH --job-name=make-stp_02 #Give your job a name.
+#SBATCH --nodes=1 #Only increase for openmpi jobs.
+#SBATCH --ntasks=1 #e.g if set to 2, could run two softwares in the script at the same time.
+#SBATCH --ntasks-per-node=1
+#SBATCH --cpus-per-task=1 #Multithreading.
+#SBATCH --time=48:00:00 #Time for a job to run given as hh:mm:ss.
+#SBATCH --mem=8G #Total Memory per node to use for the job
+#SBATCH --error=job.%J.err #Std Error write standard error to this file
+#SBATCH --output=job.%J.out #Std Out write standard output to this file
+#SBATCH --mail-type=FAIL #Notify user by email when certain event types occur (BEGIN, END, FAIL, REQUEUE)
+#SBATCH --mail-user=rojas@evolbio.mpg.de #Email for notifications from previous line
+#SBATCH --partition=standard #Request a specific partition for the resource allocation.
+
+#This script generates a bash script to perform the SNPcalling and masking for the pseudodiploid files.
+
+for i in ZT617,ZT576 ZT567,ZT649 ZT611,ZT638 ZT676,ZT583 ZT705,ZT576 ZT640,ZT671 ZT661,ZT635 ZT611,ZT650 ZT643,ZT662 ZT640,ZT559 ZT663,ZT611 ZT704,ZT611 ZT662,ZT642 ZT565,ZT655 ZT573,ZT705 ZT710,ZT709 ZT704,ZT643 ZT671,ZT661 ZT565,ZT709 ZT611,ZT710 ZT709,ZT644 ZT721,ZT681 ZT640,ZT676 ZT587,ZT710 ZT555,ZT668 ZT678,ZT643 ZT567,ZT555 ZT678,ZT699 ZT559,ZT570 ZT642,ZT699 ZT705,ZT699 ZT655,ZT635 ZT661,ZT649 ZT549,ZT651 ZT549,ZT559 ZT555,ZT570 ZT559,ZT616 ZT583,ZT573 ZT555,ZT638 ZT681,ZT634 ZT567,ZT640 ZT682,ZT655 ZT620,ZT721 ZT716,ZT709 ZT704,ZT682 ZT634,ZT721 ZT676,ZT638 ZT635,ZT642 ZT611,ZT549 ZT583,ZT651 ZT709,ZT721 ZT555,ZT682 ZT721,ZT555 ZT649,ZT635 ZT559,ZT681 ZT627,ZT635 ZT650,ZT627 ZT620,ZT649 ZT617,ZT559 ZT640,ZT649 ZT583,ZT644 ZT663,ZT567 ZT567,ZT663 ZT640,ZT587 ZT671,ZT682 ZT643,ZT611 ZT644,ZT642 ZT634,ZT671 ZT655,ZT612 ZT650,ZT655 ZT655,ZT616 ZT634,ZT576 ZT576,ZT672 ZT662,ZT611 ZT650,ZT634 ZT671,ZT676 ZT576,ZT634 ZT649,ZT620 ZT555,ZT661 ZT555,ZT705 ZT705,ZT612 ZT627,ZT573 ZT709,ZT620 ZT705,ZT642 ZT617,ZT573 ZT644,ZT671 ZT651,ZT721 ZT668,ZT573 ZT616,ZT668 ZT638,ZT611 ZT650,ZT616 ZT672,ZT617 ZT649,ZT678 ZT668,ZT662 ZT650,ZT555 ZT617,ZT627 ZT643,ZT661 ZT655,ZT643 ZT663,ZT676 ZT612,ZT640 ; do echo -e '#!/bin/bash'"\n#SBATCH --job-name=call-mask #Give your job a name.\n#SBATCH --nodes=1 #Only increase for openmpi jobs.\n#SBATCH --ntasks=1 #e.g if set to 2, could run two softwares in the script at the same time.\n#SBATCH --ntasks-per-node=1\n#SBATCH --cpus-per-task=1 #Multithreading.\n#SBATCH --time=24:00:00 #Time for a job to run given as hh:mm:ss.\n#SBATCH --mem=12G #Total Memory per node to use for the job\n#SBATCH --error=job.%J.err #Std Error write standard error to this file\n#SBATCH --output=job.%J.out #Std Out write standard output to this file\n#SBATCH --mail-type=FAIL #Notify user by email when certain event types occur (BEGIN, END, FAIL, REQUEUE)\n#SBATCH --mail-user=rojas@evolbio.mpg.de #Email for notifications from previous line\n#SBATCH --partition=standard #Request a specific partition for the resource allocation.\n#This script generates VCF and mask files from individual diploid BAM files.\n\ndata=\"./../data/pseudodiploid\"\nout=\"./../data/pseudodiploid_vcf\"""\nsample=\"$i\"\nmsmctools=\"../../packages/msmc-tools/\"
+refGenome=\"../data/GCF_000219625.1_MYCGR_v2.0_genomic.fna\"\n#estimating the average sequencing depth using all site on chromosome 2 = NC_018217.1\n\nDEPTH=\$(samtools depth -r NC_018218.1 \$data/\$sample.pseudoDiploid.readGroup.bam | awk '{sum += \$3} END {print sum / NR}')\necho "\$"DEPTH"" > \$out/tmp\nfor CHR in NC_018218.1 NC_018217.1 NC_018216.1 NC_018215.1 NC_018214.1 NC_018213.1 NC_018212.1 NC_018211.1 NC_018210.1 NC_018209.1 NC_018208.1 NC_018207.1 NC_018206.1 NC_018205.1 NC_018204.1 NC_018203.1 NC_018202.1 NC_018201.1 NC_018200.1 NC_018199.1 NC_018198.1; do\nsamtools mpileup -B -q 20 -Q 20 -C 50 -g -r \$CHR -f \$refGenome \$data/\$sample.pseudoDiploid.readGroup.bam | bcftools call -c -V indels | \$msmctools/bamCaller.py \$DEPTH \$out/\$sample.mask.chr\$CHR.bed.gz | gzip -c > \$out/\$sample.chr\$CHR.vcf.gz;\ndone
+" > stp_02_call-mask-wht_$i.sh;done
