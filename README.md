@@ -7,9 +7,9 @@ This repository contains the scripts used to asses demogrphic history of Zymosep
 - msmc2
 
 - Rstudio
-  - library(tidyverse)
-  - library(data.table)
-  - library(RColorBrewer)
+  - tidyverse
+  - data.table
+  - RColorBrewer
 
 ## Directories content
 
