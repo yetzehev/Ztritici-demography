@@ -2,7 +2,7 @@
 
 # Pipeline description
 
-##  Aim
+###  Aim
 To assess the  demographic history of *Aegilops*- and *Triticum*-infecting *Z. tritici* populations
 
 ### Population divergence scenarios of *Aegilops*- and *Triticum*-infecting Z. tritici
@@ -13,15 +13,15 @@ B. Compute divergence with diferent genomes subsets
 
 ## Data sets
 
-A total of 74 genotypes:
+A total number of 74 genotypes:
 - *Triticum*-infecting  infecting Z.tritici genotypes (n = 45)
 - *Aegilops cylindrica*-infecting Z. tritici genotypes (n= 29)
 
-Outiers isolates that infect *A. tauschii* and high IBS *Triticum*-infecting isolates were not included
+Note: Outiers isolates that infect *A. tauschii* and high IBS *Triticum*-infecting isolates were not included
 
 ### Step 1: Pseudidiploid bam files
 
-B. To define the 100 pseudodiploid genotypes to perform the analysis. I randomly combined the IDs of 29 *Aegilops*, or the IDs of the 45 *Triticum*-infecting.
+B.Define the 100 pseudodiploid genotypes to perform the analysis. I randomly combined the IDs of 29 *Aegilops*, or the IDs of the 45 *Triticum*-infecting isolates.
 	
     #Combine the IDs in pairs
     cat Ztritici.aeg.txt | while read s; do for d in `cat Ztritici.aeg.txt`; do if [ $s != $d ]; then echo $s,$d; fi; done; done > Ztritici.aeg.diploid.comb
