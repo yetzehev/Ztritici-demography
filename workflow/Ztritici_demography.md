@@ -9,7 +9,7 @@ To assess the  demographic history of *Aegilops*- and *Triticum*-infecting *Z. t
 
 A. Compute population divergence
 
-B. Compute divergence with diferent genome/haploid subsets
+B. Compute divergence between diferent genome/haploid subsets
 
 ## Data sets
 
@@ -75,12 +75,12 @@ D. Submit the individual files  generated as independent jobs.
 
 	for i in *aeg.sh; do sbatch $i;done
     
-**Repeat the same steps to generate the pseudodiploid file for the Triticum-infecting isolates.**
+**Repeat the same steps to generate the pseudodiploid files for the *Triticum*-infecting isolates.**
     
 
 ### Step2: Perform the SNP calling with bcftools
 
-A. After generating the pseudodiploid bamfiles, use the as input files for the SNPcallin with bcftools. This scrpit will generate an individual file for each pseudiploid genotype.
+A. After generating the pseudodiploid bamfiles, use the as input files for the SNPcalling with bcftools. This scrpit will generate an individual file for each pseudiploid genotype.
 
 B. Execute with the command
 
