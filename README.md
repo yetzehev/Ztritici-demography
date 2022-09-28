@@ -5,10 +5,10 @@ This repository contains the scripts used to asses demographic history of *Zymos
 
 ## Prerequisites
 
-- bcftools
-- samtools
-- picard
-- msmc2
+- bcftools v. 1.3.1
+- Samtools v. 1.9
+- Picard tools v. 2.25.0
+- [msmc2](https://github.com/stschiff/msmc2)
 - Rstudio
   - tidyverse
   - data.table
