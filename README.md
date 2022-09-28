@@ -16,6 +16,6 @@ This repository contains the scripts used to asses demographic history of *Zymos
 
 ## Directories content
 
-**Workflow:** Contains a markdown file that describes the workflow to compute Ne and RCCR
+**workflow:** Contains a markdown file that describes the workflow to compute Ne and RCCR
 
-**Scripts:** TContains the scripts to run the pipeline described in workflow
+**scripts:** Contains the scripts to run the pipeline described in workflow
