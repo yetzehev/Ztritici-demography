@@ -7,9 +7,9 @@ To assess the  demographic history of *Aegilops*- and *Triticum*-infecting *Z. t
 
 ### Population divergence scenarios of *Aegilops*- and *Triticum*-infecting Z. tritici
 
-A. Compute population divergence with different number of time segments: 32, 16 and 12
+A. Compute population divergence
 
-B. Compute divergence with diferent genomes subsets
+B. Compute divergence with diferent genome/haploid subsets
 
 ## Data sets
 
@@ -21,7 +21,18 @@ Note: Outiers isolates that infect *A. tauschii* and high IBS *Triticum*-infecti
 
 ### Step 1: Pseudidiploid bam files
 
-B.Define the 100 pseudodiploid genotypes to perform the analysis. I randomly combined the IDs of 29 *Aegilops*, or the IDs of the 45 *Triticum*-infecting isolates.
+A. Make a list file with the ID samples per population, this should look like this.
+
+```
+ZT427
+ZT429
+ZT431
+ZT436
+ZT440
+
+```
+
+B. Define the 100 pseudodiploid genotypes to perform the analysis. I randomly combined the IDs of 29 *Aegilops*, or the IDs of the 45 *Triticum*-infecting isolates.
 	
     #Combine the IDs in pairs
     cat Ztritici.aeg.txt | while read s; do for d in `cat Ztritici.aeg.txt`; do if [ $s != $d ]; then echo $s,$d; fi; done; done > Ztritici.aeg.diploid.comb
@@ -64,6 +75,8 @@ D. Submit the individual files  generated as independent jobs.
 
 	for i in *aeg.sh; do sbatch $i;done
     
+**Repeat the same steps to generate the pseudodiploid file for the Triticum-infecting isolates.**
+    
 
 ### Step2: Perform the SNP calling with bcftools
 
@@ -103,7 +116,7 @@ This command will show:
     " > stp_02_call-mask-aeg_$i.sh;done
 
 
-D. The last step will generate invidual scripts to peforM the SNVcalling and masking at once: 
+D. The last step will generate invidual scripts to peform the SNVcalling and masking at once:
 script name: stp_02_call-mask-wht_$i.sh, where $i is each of the pseudodiploid genotypes.
 
 
