@@ -1,4 +1,4 @@
-# *Ztritici* demography
+# *Zymoseptoria tritici* demography
 
 This repository contains the scripts used to asses demographic history of *Zymoseptoris tritici* populations using msmc2.
 

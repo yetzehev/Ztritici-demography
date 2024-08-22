@@ -7,9 +7,7 @@ To assess the  demographic history of *Aegilops*- and *Triticum*-infecting *Z. t
 
 ### Population divergence scenarios of *Aegilops*- and *Triticum*-infecting Z. tritici
 
-A. Compute population divergence
-
-B. Compute divergence between diferent genome/haploid subsets
+A. Compute population divergence with different genomes subsets.
 
 ## Data sets
 
@@ -17,169 +15,89 @@ A total number of 74 genotypes:
 - *Triticum*-infecting  infecting Z.tritici genotypes (n = 45)
 - *Aegilops cylindrica*-infecting Z. tritici genotypes (n= 28)
 
-Note: Outiers isolates that infect *A. tauschii* and high IBS *Triticum*-infecting isolates were not included
-
-### Step 1: Pseudidiploid bam files
-
-A. Make a list file with the ID samples per population, this should look like this.
-
-```
-ZT427
-ZT429
-ZT436
-ZT440
-ZT441
-
-```
-
-B. Define the 100 pseudodiploid genotypes to perform the analysis. I randomly combined the IDs of 28 *Aegilops*, or the IDs of the 45 *Triticum*-infecting isolates.
-	
-    #Combine the IDs in pairs
-    cat Ztritici.aeg.txt | while read s; do for d in `cat Ztritici.aeg.txt`; do if [ $s != $d ]; then echo $s,$d; fi; done; done > Ztritici.aeg.diploid.comb
-	#Generate a list with 100 random combinations the comand 
-	shuf -n 100 Ztritici.aeg.diploid.comb > Ztritici.aeg.diploid.100comb; tr "\n" " " < Ztritici.aeg.diploid.100comb
-    
-C. The list of pseudidiploid combination was used to generate pseudodiploid bam files. Execute the script below with the command 
-
-	./make_stp_01_pseudoDipl_aegCyl.sh 
-
-
-To display the content of the script with the command
-	
-    cat ./make_stp_01_pseudoDipl_aegCyl.sh
+Note: Outiers isolates that infect *A. tauschii* and high IBS *Triticum*-infecting isolates were not included.
     
 
-This command will show:
-```
-    #!/bin/bash
-#SBATCH --job-name=make-stp_01 #Give your job a name.
-    #SBATCH --nodes=1 #Only increase for openmpi jobs.
-    #SBATCH --ntasks=1 #e.g if set to 2, could run two softwares in the script at the same time.
-    #SBATCH --ntasks-per-node=1
-    #SBATCH --cpus-per-task=1 #Multithreading.
-    #SBATCH --time=24:00:00 #Time for a job to run given as hh:mm:ss.
-    #SBATCH --mem=8G #Total Memory per node to use for the job
-    #SBATCH --error=job.%J.err #Std Error write standard error to this file
-    #SBATCH --output=job.%J.out #Std Out write standard output to this file
-    #SBATCH --mail-type=FAIL #Notify user by email when certain event types occur (BEGIN, END, FAIL, REQUEUE)
-    #SBATCH --mail-user=rojas@evolbio.mpg.de #Email for notifications from previous line
-    #SBATCH --partition=standard #Request a specific partition for the resource allocation.
+### Step 1: Perform the SNP calling and depth-masking with bcftools
 
+Although *Zymoseptoria tritici* has a haploid genome, recombination still occurs during its sexual reproduction. However, the msmcm2 pipeline requires a diploid, phased VCF file as input. To address this, SNP calling was performed using the msmc2 pipeline with haploid data, but with the ploidy flag set to 2. This approach generated a diploid, homozygous VCF file, which was then used to create the MSMC2 input file. For the cross-coalescence computation, only one genome index was considered (see `stp_03_haploid2x_across-pop_ag-wh_08hap_r015.sh`).
 
-    for i in  ZT495,ZT517 ZT498,ZT454 ZT498,ZT476 ZT448,ZT453 ZT440,ZT476 ZT475,ZT536 ZT517,ZT495 ZT475,ZT481 ZT485,ZT504 ZT528,ZT489 ZT429,ZT479 ZT508,ZT489 ZT479,ZT504 ZT481,ZT515 ZT448,ZT534 ZT469,ZT479 ZT440,ZT500 ZT528,ZT537 ZT440,ZT508 ZT460,ZT479 ZT427,ZT508 ZT504,ZT536 ZT436,ZT489 ZT495,ZT534 ZT536,ZT498 ZT498,ZT440 ZT508,ZT504 ZT508,ZT528 ZT536,ZT517 ZT475,ZT469 ZT429,ZT489 ZT500,ZT460 ZT475,ZT453 ZT442,ZT515 ZT504,ZT427 ZT495,ZT448 ZT427,ZT469 ZT537,ZT489 ZT476,ZT517 ZT489,ZT454 ZT534,ZT427 ZT485,ZT498 ZT500,ZT537 ZT504,ZT454 ZT534,ZT442 ZT460,ZT504 ZT469,ZT440 ZT515,ZT440 ZT440,ZT537 ZT476,ZT460 ZT537,ZT504 ZT508,ZT442 ZT448,ZT489 ZT537,ZT460 ZT508,ZT429 ZT454,ZT489 ZT481,ZT485 ZT441,ZT537 ZT454,ZT475 ZT440,ZT498 ZT534,ZT469 ZT500,ZT442 ZT453,ZT498 ZT504,ZT475 ZT528,ZT441 ZT436,ZT498 ZT453,ZT429 ZT536,ZT448 ZT495,ZT479 ZT481,ZT453 ZT475,ZT479 ZT498,ZT448 ZT475,ZT427 ZT489,ZT448 ZT495,ZT515 ZT517,ZT534 ZT517,ZT536 ZT489,ZT517 ZT436,ZT448 ZT475,ZT460 ZT454,ZT436 ZT440,ZT479 ZT489,ZT500 ZT504,ZT489 ZT427,ZT476 ZT504,ZT481 ZT495,ZT460 ZT441,ZT454 ZT448,ZT536 ZT436,ZT495 ZT481,ZT536 ZT498,ZT508 ZT515,ZT441 ZT460,ZT469 ZT534,ZT436 ZT436,ZT517 ZT460,ZT453 ZT429,ZT515 ZT475,ZT534 ZT460,ZT495 ; do    KEY=${i%,*};   VAL=${i#*,};
-    echo -e '#!/bin/bash'"\n#SBATCH --job-name=psuedoDipl #Give your job a name.\n#SBATCH --nodes=1 #Only increase for openmpi jobs.\n#SBATCH --ntasks=1 #e.g if set to 2, could run two softwares in the script at the same time.\n#SBATCH --ntasks-per-node=1\n#SBATCH --cpus-per-task=1 #Multithreading.\n#SBATCH --time=24:00:00 #Time for a job to run given as hh:mm:ss.\n#SBATCH --mem=8G #Total Memory per node to use for the job\n#SBATCH --error=job.%J.err #Std Error write standard error to this file\n#SBATCH --output=job.%J.out #Std Out write standard output to this file\n#SBATCH --mail-type=FAIL #Notify user by email when certain event types occur (BEGIN, END, FAIL, REQUEUE)\n#SBATCH --mail-user=rojas@evolbio.mpg.de #Email for notifications from previous line\n#SBATCH --partition=standard #Request a specific partition for the resource allocation.\n#This script takes merge two haploid files and update the index header to createa new pseudosiploid file\n\ndata=\"./../data/haploid\"\nout=\"./../data/pseudodiploid\"""\nSAMPLE1=\""$KEY"\"\nSAMPLE2=\""$VAL"\"\nsamtools merge \$out/\$SAMPLE1.\$SAMPLE2.pseudoDiploid.bam \$data/\$SAMPLE1.ipo323.rm.dp.rg.bam \$data/\$SAMPLE2.ipo323.rm.dp.rg.bam\njava -jar picard.jar AddOrReplaceReadGroups \\\\\nI=\$out/\$SAMPLE1.\$SAMPLE2.pseudoDiploid.bam \\\\\nO=\$out/\$SAMPLE1.\$SAMPLE2.pseudoDiploid.readGroup.bam \\\\\nRGID=\$SAMPLE1.\$SAMPLE2 \\\\\nRGLB=lib1 \\\\\nRGPL=illumina \\\\\nRGPU=unit1 \\\\\nRGSM=\$SAMPLE1.\$SAMPLE2 \\\\\n\nsamtools index -b \$out/\$SAMPLE1.\$SAMPLE2.pseudoDiploid.readGroup.bam \\\\\n\nrm \$out/\$SAMPLE1.\$SAMPLE2.pseudoDiploid.bam" > stp_01_pseudoDipl_$KEY-$VAL-aeg.sh;done
-    
-```
+Note: Accessory chromosomes were excluded from msmc2 demographic analysis.
 
-D. Submit the individual files  generated as independent jobs.
+Individual scripts were generated for each genotype and SNP calling and depth-masking were run in parallel. A sample script is showed bellow
 
-	for i in *aeg.sh; do sbatch $i;done
-    
-**Repeat the same steps to generate the pseudodiploid files for the *Triticum*-infecting isolates.**
-    
-
-### Step2: Perform the SNP calling with bcftools
-
-A. After generating the pseudodiploid bamfiles, use the as input files for the SNPcalling with bcftools. This scrpit will generate an individual file for each pseudiploid genotype.
-
-B. Execute with the command
-
-	02_make_stp_02_call_mask_wht.sh
-    
-C. To visualize the content of the script execute:
-	
-    cat 02_make_stp_02_call_mask_wht.sh
-
-This command will show:
-	 
-    #!/bin/bash
-    #SBATCH --job-name=make-stp_02 #Give your job a name.
-    #SBATCH --nodes=1 #Only increase for openmpi jobs.
-    #SBATCH --ntasks=1 #e.g if set to 2, could run two softwares in the script at the same time.
-    #SBATCH --ntasks-per-node=1
-    #SBATCH --cpus-per-task=1 #Multithreading.
-    #SBATCH --time=48:00:00 #Time for a job to run given as hh:mm:ss.
-    #SBATCH --mem=8G #Total Memory per node to use for the job
-    #SBATCH --error=job.%J.err #Std Error write standard error to this file
-    #SBATCH --output=job.%J.out #Std Out write standard output to this file
-    #SBATCH --mail-type=FAIL #Notify user by email when certain event types occur (BEGIN, END, FAIL, REQUEUE)
-    #SBATCH --mail-user=rojas@evolbio.mpg.de #Email for notifications from previous line
-    #SBATCH --partition=standard #Request a specific partition for the resource allocation.
-
-    #This script generates a bash script to perform the SNPcalling and masking for the pseudodiploid files.
-
-    for i in T495.ZT517 ZT498.ZT454 ZT498.ZT476 ZT448.ZT453 ZT440.ZT476 ZT475.ZT536 ZT517.ZT495 ZT475.ZT481 ZT485.ZT504 ZT528.ZT489 ZT429.ZT479 ZT508.ZT489 ZT479.ZT504 ZT481.ZT515 ZT448.ZT534 ZT469.ZT479 ZT440.ZT500 ZT528.ZT537 ZT440.ZT508 ZT460.ZT479 ZT427.ZT508 ZT504.ZT536 ZT436.ZT489 ZT495.ZT534 ZT536.ZT498 ZT498.ZT440 ZT508.ZT504 ZT508.ZT528 ZT536.ZT517 ZT475.ZT469 ZT429.ZT489 ZT500.ZT460 ZT475.ZT453 ZT442.ZT515 ZT504.ZT427 ZT495.ZT448 ZT427.ZT469 ZT537.ZT489 ZT476.ZT517 ZT489.ZT454 ZT534.ZT427 ZT485.ZT498 ZT500.ZT537 ZT504.ZT454 ZT534.ZT442 ZT460.ZT504 ZT469.ZT440 ZT515.ZT440 ZT440.ZT537 ZT476.ZT460 ZT537.ZT504 ZT508.ZT442 ZT448.ZT489 ZT537.ZT460 ZT508.ZT429 ZT454.ZT489 ZT481.ZT485 ZT441.ZT537 ZT454.ZT475 ZT440.ZT498 ZT534.ZT469 ZT500.ZT442 ZT453.ZT498 ZT504.ZT475 ZT528.ZT441 ZT436.ZT498 ZT453.ZT429 ZT536.ZT448 ZT495.ZT479 ZT481.ZT453 ZT475.ZT479 ZT498.ZT448 ZT475.ZT427 ZT489.ZT448 ZT495.ZT515 ZT517.ZT534 ZT517.ZT536 ZT489.ZT517 ZT436.ZT448 ZT475.ZT460 ZT454.ZT436 ZT440.ZT479 ZT489.ZT500 ZT504.ZT489 ZT427.ZT476 ZT504.ZT481 ZT495.ZT460 ZT441.ZT454 ZT448.ZT536 ZT436.ZT495 ZT481.ZT536 ZT498.ZT508 ZT515.ZT441 ZT460.ZT469 ZT534.ZT436 ZT436.ZT517 ZT460.ZT453 ZT429.ZT515 ZT475.ZT534 ZT460.ZT495 ; do echo -e '#!/bin/bash'"\n#SBATCH --job-name=call-mask #Give your job a name.\n#SBATCH --nodes=1 #Only increase for openmpi jobs.\n#SBATCH --ntasks=1 #e.g if set to 2, could run two softwares in the script at the same time.\n#SBATCH --ntasks-per-node=1\n#SBATCH --cpus-per-task=1 #Multithreading.\n#SBATCH --time=24:00:00 #Time for a job to run given as hh:mm:ss.\n#SBATCH --mem=12G #Total Memory per node to use for the job\n#SBATCH --error=job.%J.err #Std Error write standard error to this file\n#SBATCH --output=job.%J.out #Std Out write standard output to this file\n#SBATCH --mail-type=FAIL #Notify user by email when certain event types occur (BEGIN, END, FAIL, REQUEUE)\n#SBATCH --mail-user=rojas@evolbio.mpg.de #Email for notifications from previous line\n#SBATCH --partition=standard #Request a specific partition for the resource allocation.\n#This script generates VCF and mask files from individual diploid BAM files.\n\ndata=\"./../data/pseudodiploid\"\nout=\"./../data/pseudodiploid_vcf\"""\nsample=\"$i\"\nmsmctools=\"../../packages/msmc-tools/\"
-    refGenome=\"../data/GCF_000219625.1_MYCGR_v2.0_genomic.fna\"\n#estimating the average sequencing depth using all site on chromosome 2 = NC_018217.1\n\nDEPTH=\$(samtools depth -r NC_018218.1 \$data/\$sample.pseudoDiploid.readGroup.bam | awk '{sum += \$3} END {print sum / NR}')\necho "\$"DEPTH"" > \$out/tmp\nfor CHR in NC_018218.1 NC_018217.1 NC_018216.1 NC_018215.1 NC_018214.1 NC_018213.1 NC_018212.1 NC_018211.1 NC_018210.1 NC_018209.1 NC_018208.1 NC_018207.1 NC_018206.1 NC_018205.1 NC_018204.1 NC_018203.1 NC_018202.1 NC_018201.1 NC_018200.1 NC_018199.1 NC_018198.1; do\nsamtools mpileup -B -q 20 -Q 20 -C 50 -g -r \$CHR -f \$refGenome \$data/\$sample.pseudoDiploid.readGroup.bam | bcftools call -c -V indels | \$msmctools/bamCaller.py \$DEPTH \$out/\$sample.mask.chr\$CHR.bed.gz | gzip -c > \$out/\$sample.chr\$CHR.vcf.gz;\ndone
-    " > stp_02_call-mask-aeg_$i.sh;done
-
-D. The last step will generate invidual scripts to peform the SNVcalling and masking at once:
-script name: stp_02_call-mask-wht_$i.sh, where $i is each of the pseudodiploid genotypes.
-
+	stp_01_call-mask-trt_ZT549.haploid2x.sh
 
 E. Display the content with the command
-	stp_02_call-mask-wht_$i.sh`
+``cat stp_01_call-mask-trt_ZT549.haploid2x.sh``
 
 ```
-	#!/bin/bash
- 
-	#SBATCH --job-name=call-mask
-	#SBATCH --nodes=1 
-	#SBATCH --ntasks=1 
-	#SBATCH --ntasks-per-node=1
-	#SBATCH --cpus-per-task=1 
-	#SBATCH --time=24:00:00 
-	#SBATCH --mem=64G 
-	#SBATCH --error=job.%J.err 
-	#SBATCH --output=job.%J.out
-	#SBATCH --mail-type=FAIL 
-	#SBATCH --mail-user=rojas@evolbio.mpg.de 
-	#SBATCH --partition=standard 
+#!/bin/bash
+#SBATCH --job-name=call-mask #Give your job a name.
+#SBATCH --nodes=1 #Only increase for openmpi jobs.
+#SBATCH --ntasks=1 #e.g if set to 2, could run two softwares in the script at the same time.
+#SBATCH --ntasks-per-node=1
+#SBATCH --cpus-per-task=1 #Multithreading.
+#SBATCH --time=96:00:00 #Time for a job to run given as hh:mm:ss.
+#SBATCH --mem=12G #Total Memory per node to use for the job
+#SBATCH --error=job.%J.err #Std Error write standard error to this file
+#SBATCH --output=job.%J.out #Std Out write standard output to this file
+#SBATCH --mail-type=FAIL #Notify user by email when certain event types occur (BEGIN, END, FAIL, REQUEUE)
+#SBATCH --mail-user=rojas@evolbio.mpg.de #Email for notifications from previous line
+#SBATCH --partition=standard #Request a specific partition for the resource allocation.
+#This script generates VCF and mask files from individual diploid BAM files.
 
-	#This script genarates VCF and mask files from individual diploid BAM files.
+data="./../data/haploid"
+out="./../data/haploid2x/"
+sample="ZT549"
+msmctools="../../packages/msmc-tools/"
+refGenome="../data/ncbi-genomes-2022-09-28/GCF_000219625.1_MYCGR_v2.0_genomic.fna"
+#estimating the average sequencing depth using all site on chromosome 2 = NC_018217.1
 
-	data="./../data"
-	out="./../out"
-	bin="./../bin"
-	sample="ZT559.ZT561"
-	refGenome="GCF_000219625.1_MYCGR_v2.0_genomic.fna"
-
-	#estimating the average sequencing depth using all site on chromosome 1 = NC_018218.1
-
-	DEPTH=$(samtools depth -r NC_018218.1 $data/$sample.pseudoDiploid.readGroup.bam | awk '{sum += $3} END {print sum / NR}')
-
-	echo "$DEPTH" > $out/tmp
-
-	for CHR in NC_018218.1 NC_018217.1 NC_018216.1 NC_018215.1 NC_018214.1 NC_018213.1 NC_018212.1 NC_018211.1 NC_018210.1 NC_018209.1 NC_018208.1 NC_018207.1 NC_018206.1 NC_018205.1 NC_018204.1 NC_018203.1 NC_018202.1 NC_018201.1 NC_018200.1 NC_018199.1 NC_018198.1; do
-	samtools mpileup -B -q 20 -Q 20 -C 50 -g -r $CHR -f $data/$refGenome $data/$sample.pseudoDiploid.readGroup.bam | bcftools call -c -V indels | ./msmc-tools/bamCaller.py $DEPTH $out/$sample.mask.chr$CHR.bed.gz | gzip -c > $out/$sample.chr$CHR.vcf.gz
-	done
+DEPTH=$(samtools depth -r NC_018218.1 $data/$sample.ipo323.rm.dp.rg.bam | awk '{sum += $3} END {print sum / NR}')
+echo $DEPTH > $out/tmp
+for CHR in NC_018218.1 NC_018217.1 NC_018216.1 NC_018215.1 NC_018214.1 NC_018213.1 NC_018212.1 NC_018211.1 NC_018210.1 NC_018209.1 NC_018208.1 NC_018207.1 NC_018206.1 ; do
+samtools mpileup -B -q 20 -Q 20 -C 50 -g -r $CHR -f $refGenome $data/$sample.ipo323.rm.dp.rg.bam | bcftools call -c -V indels | $msmctools/bamCaller.py $DEPTH $out/$sample.mask.chr$CHR.bed.gz | gzip -c > $out/$sample.chr$CHR.vcf.gz;
+done
 ```
 
-F. Submit the individual files  generated as independent jobs.
 
-	for i in *aeg.sh; do sbatch $i;done
-    
-
-## Step 3. Select combinations for msmc2 input file
+## Step 2. Select combinations for msmc2 input file
 
 msmc2 requires an input file tha includes genotypes from both divergent populations, hereinafter pop1 and pop2. Each individual input files can consist of 2 haplotypes (1 from each pop), 4 haplotypes (2 from each pop), or 16 haploptypes (8 from each pop).
 
-For *Z. tritici* I only considered the 13 chromosomes from the core genome, and then created 10 input files based on the permutaions in table 1.
+
 
 
 **Table 1. List of genotype permutations to generate input files for msmc2**
 
-Permutation|	Aegilops cylindrica (pop1)                   |	Triticum (pop2)                                      |
------------|--------------------------------------------|--------------------------------------------------|
-1	| ZT495.ZT517, ZT454.ZT489, ZT448.ZT453, ZT440.ZT476	| ZT617.ZT576, ZT567.ZT649, ZT611.ZT638, ZT678.ZT699
-2	| ZT498.ZT476, ZT517.ZT495, ZT485.ZT504, ZT429.ZT489	| ZT644.ZT671, ZT705.ZT642, ZT617.ZT573, ZT620.ZT721 
-3	| ZT429.ZT479, ZT481.ZT515, ZT440.ZT500, ZT528.ZT489 	| ZT709.ZT721, ZT662.ZT642, ZT565.ZT655, ZT573.ZT705
-4	| ZT528.ZT537, ZT440.ZT508, ZT460.ZT479, ZT504.ZT536	| ZT611.ZT549, ZT655.ZT616, ZT668.ZT662, ZT671.ZT682 
-5	| ZT534.ZT442, ZT536.ZT498, ZT475.ZT469, ZT481.ZT485	| ZT704.ZT643, ZT671.ZT661, ZT611.ZT710, ZT565.ZT709 
-6	| ZT500.ZT460, ZT475.ZT453, ZT442.ZT515, ZT495.ZT448	| ZT721.ZT681, ZT640.ZT676, ZT587.ZT710, ZT709.ZT644
-7	| ZT479.ZT504, ZT475.ZT481, ZT441.ZT454, ZT536.ZT448	| ZT678.ZT643, ZT640.ZT587, ZT555.ZT668, ZT704.ZT682 
-8	| ZT427.ZT469, ZT537.ZT489, ZT476.ZT517, ZT515.ZT441	| ZT559.ZT570, ZT642.ZT699, ZT576.ZT634, ZT655.ZT635
-9	| ZT534.ZT427, ZT485.ZT498, ZT500.ZT537, ZT460.ZT453	| ZT661.ZT649, ZT549.ZT651, ZT655.ZT643, ZT555.ZT570
-10	| ZT508.ZT442, ZT504.ZT427, ZT534.ZT469, ZT498.ZT454	| ZT559.ZT616, ZT583.ZT573, ZT681.ZT634, ZT676.ZT638
+Permutation|	Aegilops cylindrica (pop1)                   |	Triticum (pop2)                                      
+-----------|--------------------------------------------|--------------------------------------------------
+1	| ZT495, ZT454, ZT448, ZT440	| ZT617, ZT567, ZT611, ZT678 
+2	| ZT460, ZT528, ZT441, ZT498	| ZT611, ZT638, ZT676, ZT583
+3	| ZT442, ZT429, ZT431, ZT536	| ZT617, ZT573, ZT644, ZT671
+4	| ZT460, ZT537, ZT479, ZT440	| ZT709, ZT620, ZT705, ZT642
+5	| ZT442, ZT476, ZT448, ZT427	| ZT573, ZT705, ZT710, ZT709
+6	| ZT536, ZT475, ZT460, ZT508	| ZT662, ZT642, ZT565, ZT655
+7	| ZT536, ZT485, ZT431, ZT460	| ZT709, ZT721, ZT555, ZT682
+8	| ZT476, ZT479, ZT495, ZT517	| ZT611, ZT549, ZT583, ZT651
+9	| ZT536, ZT440, ZT485, ZT504	| ZT565, ZT709, ZT611, ZT710
+10	| ZT500, ZT427, ZT517, ZT537	| ZT704, ZT643, ZT671, ZT661
+11	| ZT481, ZT508, ZT448, ZT427	| ZT640, ZT676, ZT587 ZT710
+
+
+12	| ZT489, ZT436, ZT431, ZT460	| ZT709, ZT644, ZT721, ZT681
+13	| ZT481, ZT534, ZT500, ZT440	| ZT567, ZT555, ZT678, ZT699
+14	| ZT454, ZT429, ZT441, ZT498	| ZT555, ZT668, ZT678, ZT643
+15	| ZT441, ZT498, ZT536, ZT475	| ZT576, ZT634, ZT655, ZT635
+16	| ZT431, ZT460, ZT517, ZT537	| ZT559, ZT570, ZT642, ZT699
+
+17	| ZT481, ZT508, ZT534, ZT485	| ZT655, ZT643, ZT555, ZT570
+18	| ZT476, ZT479, ZT500, ZT440	| ZT661, ZT649, ZT549, ZT651
+19	| ZT453, ZT442, ZT495, ZT517	| ZT555, ZT638, ZT681, ZT634
+20	| ZT448, ZT427, ZT460, ZT537	| ZT559, ZT616, ZT583, ZT573
+
+
 
 
 The script below will generate an input file for ach of the 13 chromosomes of *Z. tritici*. I run each combination on an independet script.
