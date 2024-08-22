@@ -217,7 +217,7 @@ $msmctools/combineCrossCoal.py $out/aeg-wht.08hapl.allChr.across-pop12.comb$i.ou
 done
 ```
 
-## Step 6. Plot RCCR and Ne
+## Step 5. Plot RCCR and Ne
 
 After computing Ne and RCCR these can be plot on R. To scale Ne and RCCR to years or number of  generations, it must be provided a mutation rate (u) per cell per generation and number of generations per year, if one generation per year g=1, if two generations per year g=0.5, etc.
 
