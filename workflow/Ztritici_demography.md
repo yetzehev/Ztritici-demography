@@ -66,9 +66,6 @@ done
 
 msmc2 requires an input file tha includes genotypes from both divergent populations, hereinafter pop1 and pop2. Each individual input files can consist of 2 haplotypes (1 from each pop), 4 haplotypes (2 from each pop), or 16 haploptypes (8 from each pop).
 
-
-
-
 **Table 1. List of genotype permutations to generate input files for msmc2**
 
 Permutation|	Aegilops cylindrica (pop1)                   |	Triticum (pop2)                                      
@@ -84,14 +81,11 @@ Permutation|	Aegilops cylindrica (pop1)                   |	Triticum (pop2)
 9	| ZT536, ZT440, ZT485, ZT504	| ZT565, ZT709, ZT611, ZT710
 10	| ZT500, ZT427, ZT517, ZT537	| ZT704, ZT643, ZT671, ZT661
 11	| ZT481, ZT508, ZT448, ZT427	| ZT640, ZT676, ZT587 ZT710
-
-
 12	| ZT489, ZT436, ZT431, ZT460	| ZT709, ZT644, ZT721, ZT681
 13	| ZT481, ZT534, ZT500, ZT440	| ZT567, ZT555, ZT678, ZT699
 14	| ZT454, ZT429, ZT441, ZT498	| ZT555, ZT668, ZT678, ZT643
 15	| ZT441, ZT498, ZT536, ZT475	| ZT576, ZT634, ZT655, ZT635
 16	| ZT431, ZT460, ZT517, ZT537	| ZT559, ZT570, ZT642, ZT699
-
 17	| ZT481, ZT508, ZT534, ZT485	| ZT655, ZT643, ZT555, ZT570
 18	| ZT476, ZT479, ZT500, ZT440	| ZT661, ZT649, ZT549, ZT651
 19	| ZT453, ZT442, ZT495, ZT517	| ZT555, ZT638, ZT681, ZT634
@@ -100,11 +94,11 @@ Permutation|	Aegilops cylindrica (pop1)                   |	Triticum (pop2)
 
 
 
-The script below will generate an input file for ach of the 13 chromosomes of *Z. tritici*. I run each combination on an independet script.
+The script below generates an MSMC2 input file for each of the 13 chromosomes in the *Z. tritici* core genome. Each combination was run in a separte script.
 
 A. To display the content of the script use
 
-	cat 03_make_stp_03_input-msmc_16hap_aeg-trt_nonMskd.comb1.sh
+	cat 02_haploid2x_make_stp_02_input-msmc_08hap_aeg-trt_nonMskd.comb1.sh
 This will show
 ```
 #!/bin/bash
@@ -121,19 +115,21 @@ This will show
 #SBATCH --mail-user=rojas@evolbio.mpg.de #Email for notifications from previous line
 #SBATCH --partition=standard #Request a specific partition for the resource allocation.
 
-out="./../data/pseudodiploid_vcf/"
-msmcinput="./../data/msmc_16hap"
+out="./../data/haploid2x"
+msmcinput="./../data/msmc_haploid2x_08hap"
 
-SAMPLE1="ZT442.ZT431" #aeg-pop1
-SAMPLE2="ZT454.ZT429" #aeg-pop1
-SAMPLE3="ZT460.ZT528" #aeg-pop1
-SAMPLE4="ZT441.ZT498" #aeg-pop1
-SAMPLE5="ZT617.ZT576" #trt-pop2
-SAMPLE6="ZT567.ZT649" #trt-pop2
-SAMPLE7="ZT611.ZT638" #trt-pop2
-SAMPLE8="ZT676.ZT583" #trt-pop2
+SAMPLE1=ZT495 #aeg-pop1
+SAMPLE2=ZT454 #aeg-pop1
+SAMPLE3=ZT448 #aeg-pop1
+SAMPLE4=ZT440 #aeg-pop1
+SAMPLE5=ZT617 #trt-pop2
+SAMPLE6=ZT567 #trt-pop2
+SAMPLE7=ZT611 #trt-pop2
+SAMPLE8=ZT678 #trt-pop2
+##N. combination
+combN=comb1
 
-#This script generates the masking files for 8 pseudodiploid bamfiles created on step 1; four for Aegilops and 4 for Triticum
+#This script generates the masking files for 8 haploid2x bamfiles created on step 1; four for Aegilops and 4 for Triticum
 for CHR in NC_018218.1 NC_018217.1 NC_018216.1 NC_018215.1 NC_018214.1 NC_018213.1 NC_018212.1 NC_018211.1 NC_018210.1 NC_018209.1 NC_018208.1 NC_018207.1 NC_018206.1; do #NC_018205.1 NC_018204.1 NC_018203.1 NC_018202.1 NC_018201.1 NC_018200.1 NC_018199.1 NC_018198.1; do
 
 ../../packages/msmc-tools/generate_multihetsep.py \
@@ -145,7 +141,8 @@ for CHR in NC_018218.1 NC_018217.1 NC_018216.1 NC_018215.1 NC_018214.1 NC_018213
 --mask=$out/$SAMPLE6.mask.chr$CHR.bed.gz \
 --mask=$out/$SAMPLE7.mask.chr$CHR.bed.gz \
 --mask=$out/$SAMPLE8.mask.chr$CHR.bed.gz \
-$out/$SAMPLE1.chr$CHR.vcf.gz $out/$SAMPLE2.chr$CHR.vcf.gz $out/$SAMPLE3.chr$CHR.vcf.gz $out/$SAMPLE4.chr$CHR.vcf.gz $out/$SAMPLE5.chr$CHR.vcf.gz $out/$SAMPLE6.chr$CHR.vcf.gz $out/$SAMPLE7.chr$CHR.vcf.gz $out/$SAMPLE8.chr$CHR.vcf.gz> $msmcinput/aeg-wht.16hapl.comb1.chr.$CHR.msmc.input;done
+$out/$SAMPLE1.chr$CHR.vcf.gz $out/$SAMPLE2.chr$CHR.vcf.gz $out/$SAMPLE3.chr$CHR.vcf.gz $out/$SAMPLE4.chr$CHR.vcf.gz $out/$SAMPLE5.chr$CHR.vcf.gz $out/$SAMPLE6.chr$CHR.vcf.gz $out/$SAMPLE7.chr$CHR.vcf.gz $out/$SAMPLE8.chr$CHR.vcf.gz> $msmcinput/aeg-wht.08hapl.$combN.chr.$CHR.msmc.input;done
+
 ```
 
 ## Step 4: Population size estimation
