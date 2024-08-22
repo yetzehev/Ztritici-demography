@@ -1,15 +1,11 @@
-# Demography of two divergent populations of *Triticum*- and *Aegilops*-infecting  *Z. tritici* 
+## Demography of two divergent populations of *Triticum*- and *Aegilops*-infecting  *Z. tritici* 
 
-# Pipeline description
+## Pipeline description
 
 ###  Aim
 To assess the  demographic history of *Aegilops*- and *Triticum*-infecting *Z. tritici* populations
 
-### Population divergence scenarios of *Aegilops*- and *Triticum*-infecting Z. tritici
-
-A. Compute population divergence with different genomes subsets.
-
-## Data sets
+### Data sets
 
 A total number of 74 genotypes:
 - *Triticum*-infecting  infecting Z.tritici genotypes (n = 45)
@@ -61,8 +57,7 @@ samtools mpileup -B -q 20 -Q 20 -C 50 -g -r $CHR -f $refGenome $data/$sample.ipo
 done
 ```
 
-
-## Step 2. Select combinations for msmc2 input file
+### Step 2.  Genotype combinations for msmc2 input file
 
 msmc2 requires an input file tha includes genotypes from both divergent populations, hereinafter pop1 and pop2. Each individual input files can consist of 2 haplotypes (1 from each pop), 4 haplotypes (2 from each pop), or 16 haploptypes (8 from each pop).
 
@@ -92,14 +87,12 @@ Permutation|	Aegilops cylindrica (pop1)                   |	Triticum (pop2)
 20	| ZT448, ZT427, ZT460, ZT537	| ZT559, ZT616, ZT583, ZT573
 
 
-
-
-The script below generates an MSMC2 input file for each of the 13 chromosomes in the *Z. tritici* core genome. Each combination was run in a separte script.
+The script below generates an msmc2 input file for each of the 13 chromosomes in the *Z. tritici* core genome. Each combination from Table 1 was run in a separate script.
 
 A. To display the content of the script use
 
 	cat 02_haploid2x_make_stp_02_input-msmc_08hap_aeg-trt_nonMskd.comb1.sh
-This will show
+This will show:
 ```
 #!/bin/bash
 #SBATCH --job-name=input-msmc #Give your job a name.
@@ -145,16 +138,12 @@ $out/$SAMPLE1.chr$CHR.vcf.gz $out/$SAMPLE2.chr$CHR.vcf.gz $out/$SAMPLE3.chr$CHR.
 
 ```
 
-## Step 4: Population size estimation
-msmc 2 will generate one input file per chromosome, those can be used to compute three coalescence rate functions. Two within  Aegilops and Triticum infecting-populations, these are used to estimate effective population size for each pop;  and and a third one that is across populations and will be used in the next step to compute Cross Coalescence Rate (CCR).
+### Step 3: Combine all the chromosomes per population and across populations
+After creating one input file per chromosome, these will be combined  for computing the effective population size  per population and the  Relative Cross Coalescence Rate (CCR)  between populations.
 
-Using a higher number of haplotypes (16 haps) allows to get a higher resolution when estimating Ne for recent times.
+The following script generated the  chromosome combination for the  20 haplotype combinations  described  in Table 1. **Important:** only one genome index was used per homozygous-diploid file. 
 
-In the  script: stp_04_across-pop_ag-wh_16hap.sh I looped through the 10 haplotype combinations to compute the within and between coalescence rates.
-
-To display the script execute the command:
-
-	cat ./stp_04_across-pop_ag-wh_16hap.sh
+	stp_03_haploid2x_across-pop_ag-wh_08hap_r015.sh
 
 This will shows:
 ```
@@ -171,37 +160,45 @@ This will shows:
 #SBATCH --output=job.%J.out #Std Out write standard output to this file
 #SBATCH --mail-type=FAIL #Notify user by email when certain event types occur (BEGIN, END, FAIL, REQUEUE)
 #SBATCH --mail-user=rojas@evolbio.mpg.de #Email for notifications from previous line
-#SBATCH --partition=standard #Request a specific partition for the resource allocation.
+#SBATCH --partition=global #Request a specific partition for the resource allocation.
 
-#This script uses as input two pseudo-diploid files to runs msmc for the 21 chromosomes of Z. tritici
+## This script uses as input two homozygous-diploid files to runs msmc for the 13 chromosomes of Z. tritici
+## since files are homodiploid I'm only comparing only one genotype per file
 
-for i in 1 2 3 4 5 6 7 8 9 10; do
+for i in 1 2 3 4 5 6 7 8 9 10  11 12 13 14 15 16 17 18 19 20; do
+out="./../data/msmc_haploid2x_08hap/"
 
-out="./../data/msmc_16hap"
+## Note: Only one genome index was used per input file. For example, in the first file, genome-index 0 was included while genome-index 1 was not. In the second file, genome-index 2 was included, and the following index was excluded, and so on.
 
-msmc2 -I 0,1,2,3,4,5,6,7 -o $out/aeg.16hapl.allChr.within-pop1.comb$i.output $out/aeg-wht.16hapl.comb$i.chr.NC_018206.1.msmc.input $out/aeg-wht.16hapl.comb$i.chr.NC_018207.1.msmc.input $out/aeg-wht.16hapl.comb$i.chr.NC_018208.1.msmc.input $out/aeg-wht.16hapl.comb$i.chr.NC_018209.1.msmc.input $out/aeg-wht.16hapl.comb$i.chr.NC_018210.1.msmc.input $out/aeg-wht.16hapl.comb$i.chr.NC_018211.1.msmc.input $out/aeg-wht.16hapl.comb$i.chr.NC_018212.1.msmc.input $out/aeg-wht.16hapl.comb$i.chr.NC_018213.1.msmc.input $out/aeg-wht.16hapl.comb$i.chr.NC_018214.1.msmc.input $out/aeg-wht.16hapl.comb$i.chr.NC_018215.1.msmc.input $out/aeg-wht.16hapl.comb$i.chr.NC_018216.1.msmc.input $out/aeg-wht.16hapl.comb$i.chr.NC_018217.1.msmc.input $out/aeg-wht.16hapl.comb$i.chr.NC_018218.1.msmc.input
+msmc2 -I 0,2,4,6 -r 0.15 -o $out/aeg.08hapl.allChr.within-pop1.comb$i.output $out/aeg-wht.08hapl.comb$i.chr.NC_018206.1.msmc.input $out/aeg-wht.08hapl.comb$i.chr.NC_018207.1.msmc.input $out/aeg-wht.08hapl.comb$i.chr.NC_018208.1.msmc.input $out/aeg-wht.08hapl.comb$i.chr.NC_018209.1.msmc.input $out/aeg-wht.08hapl.comb$i.chr.NC_018210.1.msmc.input $out/aeg-wht.08hapl.comb$i.chr.NC_018211.1.msmc.input $out/aeg-wht.08hapl.comb$i.chr.NC_018212.1.msmc.input $out/aeg-wht.08hapl.comb$i.chr.NC_018213.1.msmc.input $out/aeg-wht.08hapl.comb$i.chr.NC_018214.1.msmc.input $out/aeg-wht.08hapl.comb$i.chr.NC_018215.1.msmc.input $out/aeg-wht.08hapl.comb$i.chr.NC_018216.1.msmc.input $out/aeg-wht.08hapl.comb$i.chr.NC_018217.1.msmc.input $out/aeg-wht.08hapl.comb$i.chr.NC_018218.1.msmc.input
 
-msmc2 -I 8,9,10,11,12,13,14,15 -o $out/wht.16hapl.allChr.within-pop2.comb$i.output $out/aeg-wht.16hapl.comb$i.chr.NC_018206.1.msmc.input $out/aeg-wht.16hapl.comb$i.chr.NC_018207.1.msmc.input $out/aeg-wht.16hapl.comb$i.chr.NC_018208.1.msmc.input $out/aeg-wht.16hapl.comb$i.chr.NC_018209.1.msmc.input $out/aeg-wht.16hapl.comb$i.chr.NC_018210.1.msmc.input $out/aeg-wht.16hapl.comb$i.chr.NC_018211.1.msmc.input $out/aeg-wht.16hapl.comb$i.chr.NC_018212.1.msmc.input $out/aeg-wht.16hapl.comb$i.chr.NC_018213.1.msmc.input $out/aeg-wht.16hapl.comb$i.chr.NC_018214.1.msmc.input $out/aeg-wht.16hapl.comb$i.chr.NC_018215.1.msmc.input $out/aeg-wht.16hapl.comb$i.chr.NC_018216.1.msmc.input $out/aeg-wht.16hapl.comb$i.chr.NC_018217.1.msmc.input $out/aeg-wht.16hapl.comb$i.chr.NC_018218.1.msmc.input
+msmc2 -I 8,10,12,14 -r 0.15 -o $out/wht.08hapl.allChr.within-pop2.comb$i.output $out/aeg-wht.08hapl.comb$i.chr.NC_018206.1.msmc.input $out/aeg-wht.08hapl.comb$i.chr.NC_018207.1.msmc.input $out/aeg-wht.08hapl.comb$i.chr.NC_018208.1.msmc.input $out/aeg-wht.08hapl.comb$i.chr.NC_018209.1.msmc.input $out/aeg-wht.08hapl.comb$i.chr.NC_018210.1.msmc.input $out/aeg-wht.08hapl.comb$i.chr.NC_018211.1.msmc.input $out/aeg-wht.08hapl.comb$i.chr.NC_018212.1.msmc.input $out/aeg-wht.08hapl.comb$i.chr.NC_018213.1.msmc.input $out/aeg-wht.08hapl.comb$i.chr.NC_018214.1.msmc.input $out/aeg-wht.08hapl.comb$i.chr.NC_018215.1.msmc.input $out/aeg-wht.08hapl.comb$i.chr.NC_018216.1.msmc.input $out/aeg-wht.08hapl.comb$i.chr.NC_018217.1.msmc.input $out/aeg-wht.08hapl.comb$i.chr.NC_018218.1.msmc.input
 
-msmc2 -I 0-8,0-9,0-10,0-11,0-12,0-13,0-14,0-15,1-8,1-9,1-10,1-11,1-12,1-13,1-14,1-15,2-8,2-9,2-10,2-11,2-12,2-13,2-14,2-15,3-8,3-9,3-10,3-11,3-12,3-13,3-14,3-15,4-8,4-9,4-10,4-11,4-12,4-13,4-14,4-15,5-8,5-9,5-10,5-11,5-12,5-13,5-14,5-15,6-8,6-9,6-10,6-11,6-12,6-13,6-14,6-15,7-8,7-9,7-10,7-11,7-12,7-13,7-14,7-15 -o $out/aeg-wht.16hapl.allChr.across-pop12.comb$i.output $out/aeg-wht.16hapl.comb$i.chr.NC_018206.1.msmc.input $out/aeg-wht.16hapl.comb$i.chr.NC_018207.1.msmc.input $out/aeg-wht.16hapl.comb$i.chr.NC_018208.1.msmc.input $out/aeg-wht.16hapl.comb$i.chr.NC_018209.1.msmc.input $out/aeg-wht.16hapl.comb$i.chr.NC_018210.1.msmc.input $out/aeg-wht.16hapl.comb$i.chr.NC_018211.1.msmc.input $out/aeg-wht.16hapl.comb$i.chr.NC_018212.1.msmc.input $out/aeg-wht.16hapl.comb$i.chr.NC_018213.1.msmc.input $out/aeg-wht.16hapl.comb$i.chr.NC_018214.1.msmc.input $out/aeg-wht.16hapl.comb$i.chr.NC_018215.1.msmc.input $out/aeg-wht.16hapl.comb$i.chr.NC_018216.1.msmc.input $out/aeg-wht.16hapl.comb$i.chr.NC_018217.1.msmc.input $out/aeg-wht.16hapl.comb$i.chr.NC_018218.1.msmc.input ;
-rm $out/aeg-wht.16hapl.comb$i.chr.NC_*.1.msmc.input;
+msmc2 -I 0-8,0-10,0-12,0-14,2-8,2-10,2-12,2-14,4-8,4-10,4-12,4-14,6-8,6-10,6-12,6-14 -r 0.15 -o $out/aeg-wht.08hapl.allChr.across-pop12.comb$i.output $out/aeg-wht.08hapl.comb$i.chr.NC_018206.1.msmc.input $out/aeg-wht.08hapl.comb$i.chr.NC_018207.1.msmc.input $out/aeg-wht.08hapl.comb$i.chr.NC_018208.1.msmc.input $out/aeg-wht.08hapl.comb$i.chr.NC_018209.1.msmc.input $out/aeg-wht.08hapl.comb$i.chr.NC_018210.1.msmc.input $out/aeg-wht.08hapl.comb$i.chr.NC_018211.1.msmc.input $out/aeg-wht.08hapl.comb$i.chr.NC_018212.1.msmc.input $out/aeg-wht.08hapl.comb$i.chr.NC_018213.1.msmc.input $out/aeg-wht.08hapl.comb$i.chr.NC_018214.1.msmc.input $out/aeg-wht.08hapl.comb$i.chr.NC_018215.1.msmc.input $out/aeg-wht.08hapl.comb$i.chr.NC_018216.1.msmc.input $out/aeg-wht.08hapl.comb$i.chr.NC_018217.1.msmc.input $out/aeg-wht.08hapl.comb$i.chr.NC_018218.1.msmc.input ;
+
+rm $out/aeg-wht.08hapl.comb$i.chr.NC_*.1.msmc.input;
+
 done
 ```
 
+## Step 4. Compute RCCR
 
-## Step 5. Compute CCR
+msmc2 provides the python script: combineCrossCoal.py to  compute the relative cross coalescence rate (RCCR) between pop1 and pop2.  RCCR was computed  for each of the 20  haplotype combinations.
 
-msmc2 provides the python script: combineCrossCoal.py to  compute  RCCR between pop1 and po2. I computed RCCCR for each of the 10 combinaations.
+``cat stp_04_haploid2x_comb-cross_ag-wh_08hap_comb1-20.sh``
+
+
+
 ```
 #!/bin/bash
  
-#SBATCH --job-name=combine-coal #Give your job a name.
+#SBATCH --job-name=combine-coal #Give your job a name. 
 #SBATCH --nodes=1 #Only increase for openmpi jobs.
 #SBATCH --ntasks=1 #e.g if comb to 2, could run two softwares in the script at the same time.
 #SBATCH --ntasks-per-node=1
 #SBATCH --cpus-per-task=1 #Multithreading.
 #SBATCH --time=48:00:00 #Time for a job to run given as hh:mm:ss.
-#SBATCH --mem=64G #Total Memory per node to use for the job
+#SBATCH --mem=24G #Total Memory per node to use for the job
 #SBATCH --error=job.%J.err #Std Error write standard error to this file
 #SBATCH --output=job.%J.out #Std Out write standard output to this file
 #SBATCH --mail-type=FAIL #Notify user by email when certain event types occur (BEGIN, END, FAIL, REQUEUE)
@@ -209,12 +206,14 @@ msmc2 provides the python script: combineCrossCoal.py to  compute  RCCR between 
 #SBATCH --partition=standard #Request a specific partition for the resource allocation.
 
 #This script uses as input two pseudo-diploid files to runs msmc for the 13 chromosomes of Z. tritici
+
 msmctools="/data/biosoftware/msmc-tools/msmc-tools"
 data="./../data"
-out="./../data/msmc_16hap" 
+out="./../data/msmc_haploid2x_08hap/" 
 
-for i in 1 2 3 4 5 6 7 8 9 10; do 
-$msmctools/combineCrossCoal.py $out/aeg-wht.16hapl.allChr.across-pop12.comb$i.output.final.txt $out/aeg.16hapl.allChr.within-pop1.comb$i.output.final.txt $out/wht.16hapl.allChr.within-pop2.comb$i.output.final.txt > $out/combined_wht-aeg_16hap_msmc.comb$i.final.txt;
+## Compute with input -r 0.15  rho/theta
+for i in 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20; do 
+$msmctools/combineCrossCoal.py $out/aeg-wht.08hapl.allChr.across-pop12.comb$i.output.final.txt $out/aeg.08hapl.allChr.within-pop1.comb$i.output.final.txt $out/wht.08hapl.allChr.within-pop2.comb$i.output.final.txt > $out/combined_wht-aeg_08hapl_msmc.comb$i.r015.final.txt;
 done
 ```
 
