@@ -20,6 +20,6 @@ data="./../data"
 out="./../data/msmc_haploid2x_08hap/" 
 
 ## Compute with input -r 0.15  rho/theta
-for i in 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20; do # 1 2 3 4 5 6 7 8 9 10
+for i in 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20; do
 $msmctools/combineCrossCoal.py $out/aeg-wht.08hapl.allChr.across-pop12.comb$i.output.final.txt $out/aeg.08hapl.allChr.within-pop1.comb$i.output.final.txt $out/wht.08hapl.allChr.within-pop2.comb$i.output.final.txt > $out/combined_wht-aeg_08hapl_msmc.comb$i.r015.final.txt;
 done
