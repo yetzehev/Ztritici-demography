@@ -1,0 +1,191 @@
+---
+title: "st06_ccr_ne_homodiploid"
+author: "Idalia Rojas"
+date: "2024-05-08"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+Load libraries
+
+``` {r libraries, include = FALSE}
+#set working directory
+# Getting the path of your current open file
+current_path = rstudioapi::getActiveDocumentContext()$path 
+setwd(dirname(current_path))
+print( getwd() )
+
+#libraries
+library(tidyverse)
+library(data.table)
+library(RColorBrewer)
+```
+
+Load files
+
+```{r data.ccr, echo=FALSE}
+#Load csv files
+ccr.haploid2x = list.files(path = "./../data/msmc_haploid2x_08hap/", 
+                         pattern =".r015.final.txt" )
+ccr.haploid2x <- paste0("./../data/msmc_haploid2x_08hap/", ccr.haploid2x)
+head(ccr.haploid2x)
+list.ccr.haploid2x <- lapply(ccr.haploid2x, read.delim)
+length(list.ccr.haploid2x)
+
+ccr <- bind_rows(list.ccr.haploid2x, .id = "Combination.N")
+
+```
+
+Compute Relative Cross Coalescent Rate
+```{r plot.ccr, echo= FALSE}
+#Mutation rate
+u <- 3.3e-8 #(Lynch et al 2008)
+g <- 0.5  ## 1 generation per year
+
+## Time was computing with the average value of left and right time boundaries for each segment; I used 32 time segments total.
+ccr$Time <- unlist(ccr %>% 
+  group_by(Combination.N) %>% 
+  group_map (~(.x$left_time_boundary + .x$right_time_boundary)/2))
+
+#Escalate Time by g and u
+ccr$Time.Ky <- ccr$Time *g/u/1000
+
+## Relative Cross Coalescent Rate
+ccr$rccr <- unlist(ccr %>% 
+  group_by(Combination.N) %>% 
+  group_map (~((2*.x$lambda_01)/(.x$lambda_00+.x$lambda_11))))
+
+## Plot
+
+
+#Define pallete
+myPalette <- colorRampPalette(rev(brewer.pal(11, "BuPu")))
+sc <- scale_colour_gradientn(colours = myPalette(100), limits=c(0,1))
+
+#Plot replicates
+p.cross <- ggplot(ccr, aes( x = Time.Ky, y = rccr, group = Combination.N))+
+  annotate ("rect", xmin = 9, xmax = 10, ymin = 0, ymax = 1, fill = gray(0.5))+
+  geom_line(aes(col = rccr), size = 0.5)+ sc+
+  scale_x_continuous( trans = "log10",
+                      breaks = c(1, 10, 100, 1000),
+                      minor_breaks = c(0.5, 1, 5, 50, 500),
+                      labels = scales::comma_format(accuracy = 0.1))+
+  ylim(c(0,1))+
+  ylab(expression(rccr)) + xlab("Time (Ky)")+
+  ggtitle("Aegilops vs Triticum (mu = 3.3e-8, 1 gen/year)") +
+  ylab ("RCCR")#+
+#geom_hline(yintercept = 0.5, color = "brown")
+
+p.cross 
+ggsave(p.cross, file = "../plots/rccr_AegWht_haploid2x.pdf", width = 8, height = 6, dpi = 300, units = "in", device="pdf", useDingbats=F)
+
+png("../plots/rccr_AegWht_homoHaploid2x.png", height = 400, width = 600 )
+p.cross
+dev.off()
+```
+
+
+Conmpute Ne for Aegilops
+
+
+```{r Plot.Ne.Aegilops, echo = FALSE}
+#Load csv files
+aeg.haploid2x = list.files(path = "./../data/msmc_haploid2x_08hap/", 
+                         pattern =glob2rx("aeg.08hapl.allChr.within-pop1.comb*.output.final.txt") )
+aeg.haploid2x <- paste0("./../data/msmc_haploid2x_08hap/", aeg.haploid2x)
+head(aeg.haploid2x)
+list.aeg.haploid2x <- lapply(aeg.haploid2x, read.delim)
+length(list.aeg.haploid2x)
+
+aeg <- bind_rows(list.aeg.haploid2x, .id = "Combination.N")
+
+##  Plot
+aeg$Time <- unlist(aeg %>% 
+  group_by(Combination.N) %>% 
+  group_map(~(.x$left_time_boundary + .x$right_time_boundary)/2))
+
+aeg$Time.Ky <- aeg$Time/u*g/1000
+
+aeg$Ne <- unlist(aeg %>% 
+   group_by(Combination.N) %>% 
+  group_map (~(1/.x$lambda)/(2*u)))
+ 
+#Plot replicates
+p.aeg <- ggplot(aeg, aes( x = Time.Ky, y = Ne, group = Combination.N))+
+  annotate ("rect", xmin = 9, xmax = 10, ymin = 0, ymax = 10000000, fill = gray(0.5))+
+  geom_step(aes(col = Ne), size = 0.5)+ 
+  scale_x_continuous( trans = "log10",
+                      breaks = c(1, 10, 100, 1000),
+                      minor_breaks = c(0.5, 1, 5, 50, 500),
+                      labels = scales::comma_format(accuracy = 0.1))+
+  scale_y_continuous(trans = "log10",
+                     breaks = c(1000, 10000,100000, 1000000)
+                 )+
+  ylab(expression(rccr)) + xlab("Time (Ky)")+
+  ggtitle("Aegilops (mu = 3.3e-8), 1 gen/year") +
+  ylab ("Ne")#+
+#geom_hline(yintercept = 0.5, color = "brown")
+
+p.aeg
+
+png("../plots/NeAeg_homoHaploid2x.png", height = 400, width = 600 )
+p.aeg
+ggsave(p.aeg, file = "../plots/NeAeg_homoHaploid2x.pdf", width = 8, height = 6, dpi = 300, units = "in", device="pdf", useDingbats=F)
+dev.off()
+
+```
+
+
+```{r plot.NeWht, echo = FALSE}
+## Load csv files
+wht.haploid2x = list.files(path = "./../data/msmc_haploid2x_08hap/", 
+                         pattern =glob2rx("wht.08hapl.allChr.within-pop2.comb*.output.final.txt") )
+wht.haploid2x <- paste0("./../data/msmc_haploid2x_08hap/", wht.haploid2x)
+head(wht.haploid2x)
+list.wht.haploid2x <- lapply(wht.haploid2x, read.delim)
+length(list.wht.haploid2x)
+
+wht <- bind_rows(list.wht.haploid2x, .id = "Combination.N")
+```
+
+```{r}
+## Plot Wht.Ne
+
+  wht$Time <- unlist(wht %>% 
+  group_by(Combination.N) %>% 
+  group_map(~(.x$left_time_boundary + .x$right_time_boundary)/2))
+
+wht$Time.Ky <- wht$Time/u*g/1000
+
+  wht$Ne <- unlist(wht %>% 
+   group_by(Combination.N) %>% 
+  group_map (~(1/.x$lambda)/(2*u)))
+  
+  ##Plot Ne for wheat
+  p.wht <- ggplot(wht, aes( x = Time.Ky, y = Ne, group = Combination.N))+
+  annotate ("rect", xmin = 9, xmax = 10, ymin = 0, ymax = 1000000, fill = gray(0.5))+
+  geom_step(aes(col = Ne), size = 0.5)+ 
+  scale_x_continuous( trans = "log10",
+                      breaks = c(1, 10, 100, 1000),
+                      minor_breaks = c(0.25,0.5, 1, 5, 50, 500),
+                      labels = scales::comma_format(accuracy = 0.1))+
+  scale_y_continuous(trans = "log10",
+                     breaks =  c(1000, 10000,100000, 1000000, 10000000) #, 1000000
+                 )+
+  ylab(expression(rccr)) + xlab("Time (ky)")+
+  ggtitle("Triticum (mu = 3.3e-8, 1 gen/year)") +
+
+  ylab ("Ne")#+
+#geom_hline(yintercept = 0.5, color = "brown")
+
+p.wht
+
+png("../plots/NeWht_homoHaploid2x.png", height = 400, width = 600 )
+p.wht
+ggsave(p.wht, file = "../plots/NeWht_homoHaploid2x.pdf", width = 8, height = 6, dpi = 300, units = "in", device="pdf", useDingbats=F)
+dev.off()
+
+```
