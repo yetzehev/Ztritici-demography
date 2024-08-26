@@ -7,7 +7,6 @@ This repository contains the scripts used to asses demographic history of *Zymos
 
 - bcftools v. 1.3.1
 - Samtools v. 1.9
-- Picard tools v. 2.25.0
 - [msmc2](https://github.com/stschiff/msmc2)
 - Rstudio
   - tidyverse
@@ -18,6 +17,6 @@ This repository contains the scripts used to asses demographic history of *Zymos
 
 **workflow:** Contains a markdown file that describes the workflow to compute Ne and RCCR
 
-**scripts:** Contains the scripts to run the pipeline described in workflow
+**scripts:** Contains the scripts to run the pipeline described in the workflow
 
 **meta:** Contains the IDs list for each population
